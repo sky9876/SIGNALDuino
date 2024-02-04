@@ -75,6 +75,24 @@
 		#define PIN_LED              2
 		#define PIN_RECEIVE_A        pinReceive[0]   // gdo2 cc1101 A
 		#define PIN_RECEIVE_B        pinReceive[1]   // gdo2 cc1101 B
+	#elif SIGNALESP32_S2
+		const uint8_t pinSend[] = {4, 5};				// pin 26 reserved on S2!!!
+		const uint8_t pinReceive[] = {6, 3, 12, 13};	// Test !!!
+		#define PIN_LED              15
+		#define PIN_RECEIVE_A        pinReceive[0]   // gdo2 cc1101 A
+		#define PIN_RECEIVE_B        pinReceive[1]   // gdo2 cc1101 B
+	#elif SIGNALESP32_S3
+		const uint8_t pinSend[] = {1, 2};				// pin 26 reserved on S2!!!
+		const uint8_t pinReceive[] = {15, 16, 17, 18};	// Test !!!
+		#define PIN_LED              38
+		#define PIN_RECEIVE_A        pinReceive[0]   // gdo2 cc1101 A
+		#define PIN_RECEIVE_B        pinReceive[1]   // gdo2 cc1101 B
+	#elif SIGNALESP32_C3
+		const uint8_t pinSend[] = {8, 9};				// pin 26 reserved on S2!!!
+		const uint8_t pinReceive[] = {18, 19, 11, 13};	// Test !!!
+		#define PIN_LED              12
+		#define PIN_RECEIVE_A        pinReceive[0]   // gdo2 cc1101 A
+		#define PIN_RECEIVE_B        pinReceive[1]   // gdo2 cc1101 B
 	#elif EVIL_CROW_RF
 		const uint8_t pinSend[] = {2, 26};
 		const uint8_t pinReceive[] = {4, 25, 14, 21};
@@ -105,7 +123,7 @@
 #ifdef MAPLE_WATCHDOG
 	#include <IWatchdog.h>
 	bool watchRes = false;
-#elif WATCHDOG
+#elif defined(WATCHDOG)
 	#include <avr/wdt.h>
 #endif
 
@@ -716,7 +734,7 @@ void setup() {
 	if (IWatchdog.isEnabled()) {
 		MSG_PRINTLN(F("Watchdog enabled"));
 	}
-#elif WATCHDOG
+#elif defined(WATCHDOG)
 	if (MCUSR & (1 << WDRF)) {
 		MSG_PRINTLN(F("Watchdog caused a reset"));
 	}
@@ -735,6 +753,24 @@ void setup() {
 
 	wdt_enable(WDTO_2S);  	// Enable Watchdog
 #endif
+#ifdef SIGNALESP32_S2
+	Serial.println("*** initializing GPIO pins ***");
+	Serial.printf("* MISO: %d\n", misoPin);
+	Serial.printf("* MOSI: %d\n", mosiPin);
+	Serial.printf("* SCK: %d\n", sckPin);
+	
+	for (uint8_t i=0;i<4;i++){
+		Serial.printf("* CS%c: %d\n", i+65, cc1101::radioCsPin[i]);
+	}
+	Serial.println();
+	for (uint8_t i=0;i<2;i++){
+		Serial.printf("* PinSend (GDO0)%c: %d\n", i+65, pinSend[i]);
+	}
+	for (uint8_t i=0;i<4;i++){
+		Serial.printf("* PinRcv%c (GDO2): %d\n", i+65, pinReceive[i]);
+	}
+#endif
+
 	//delay(2000);
 	pinAsInput(PIN_RECEIVE_A);
 	pinAsInput(PIN_RECEIVE_B);
@@ -748,15 +784,25 @@ void setup() {
 #ifdef WATCHDOG
 	wdt_reset();
 #endif
+#ifdef SIGNALESP32_S2
+	Serial.println("*** initializing CC1101 ***");
+	DBG_PRINTLN(F("*** from Macro DBG_PRINT: initializing CC1101 ***"));
+#endif
 	setHasCC1101(tools::EEread(CSetAddr[10]));	// onlyRXB - keine cc1101
 #ifdef CMP_CC1101
 	if (hasCC1101) cc1101::setup();
+#endif
+#ifdef SIGNALESP32_S2
+  	Serial.println("*** initializing EEPROM ***");
 #endif
   	initEEPROM();
 	uint8_t statRadio;
 #ifdef CMP_CC1101
   if (hasCC1101) {
 	MSG_PRINTLN(F("CCInit"));
+#ifdef SIGNALESP32_S2
+	Serial.println("*** now before CCInit ***");
+#endif	
 	for (radionr = 0; radionr < 4; radionr++) {		// init radio
 		statRadio = tools::EEread(addr_statRadio + radionr);
 		if (statRadio == 0xFF) {
@@ -786,7 +832,9 @@ void setup() {
 	musterDecA.rssiConnectCallback(&rssiCallee);
 	musterDecB.rssiConnectCallback(&rssiCallee);
 #endif 
-
+#ifdef SIGNALESP32_S2
+	Serial.println("*** initializing timerjobs ***");
+#endif
 	if (musterDecB.MdebEnabled) {
 		MSG_PRINTLN(F("Starting timerjob"));
 	}
@@ -978,7 +1026,7 @@ void loop() {
 	}
 #ifdef MAPLE_WATCHDOG
 	IWatchdog.reload();
-#elif WATCHDOG
+#elif defined(WATCHDOG)
 	wdt_reset();
 #endif
 

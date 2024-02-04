@@ -43,15 +43,32 @@ namespace cc1101 {
 	SPIClass SPI_2(mosiPin, misoPin, sckPin);
 	const uint8_t radioCsPin[] = {19, 2, 17, 15}; // (PB3 PB2 PB5 PB7)
 #elif defined(ESP32)
-	#define mosiPin 23   // MOSI out
-	#define misoPin 19   // MISO in
-	#define sckPin  18   // SCLK out
-	#ifdef SIGNALESP32
-		const uint8_t radioCsPin[] = {27, 5, 22, 33};
-	#elif defined(EVIL_CROW_RF)
-		const uint8_t radioCsPin[] = {5, 27, 22, 33};
-	#else  // ESP32_SDUINO_TEST
-		const uint8_t radioCsPin[] = {5, 32, 27, 33};
+	#if defined(SIGNALESP32_S2)
+		#define mosiPin 35   // MOSI out
+		#define misoPin 37   // MISO in
+		#define sckPin  36   // SCLK out
+		const uint8_t radioCsPin[] = {38, 34, 39, 40};
+	#elif defined(SIGNALESP32_S3)
+		#define mosiPin 35   // MOSI out
+		#define misoPin 37   // MISO in
+		#define sckPin  36   // SCLK out
+		const uint8_t radioCsPin[] = {5, 34, 6, 7};
+	#elif defined(SIGNALESP32_C3)
+		#define mosiPin 3   // MOSI out
+		#define misoPin 10   // MISO in
+		#define sckPin  2   // SCLK out
+		const uint8_t radioCsPin[] = {5, 7, 6, 4};
+	#else	
+		#define mosiPin 23   // MOSI out
+		#define misoPin 19   // MISO in
+		#define sckPin  18   // SCLK out
+		#ifdef SIGNALESP32
+			const uint8_t radioCsPin[] = {27, 5, 22, 33};
+		#elif defined(EVIL_CROW_RF)
+			const uint8_t radioCsPin[] = {5, 27, 22, 33};
+		#else  // ESP32_SDUINO_TEST
+			const uint8_t radioCsPin[] = {5, 32, 27, 33};
+		#endif
 	#endif
 #else
 	#define csPin	SS	   // CSN  out
