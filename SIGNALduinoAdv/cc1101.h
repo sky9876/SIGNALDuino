@@ -49,15 +49,15 @@ namespace cc1101 {
 		#define sckPin  36   // SCLK out
 		const uint8_t radioCsPin[] = {38, 34, 39, 40};
 	#elif defined(SIGNALESP32_S3)
-		#define mosiPin 35   // MOSI out
-		#define misoPin 37   // MISO in
-		#define sckPin  36   // SCLK out
-		const uint8_t radioCsPin[] = {5, 34, 6, 7};
+		#define mosiPin 11   // MOSI out
+		#define misoPin 13   // MISO in
+		#define sckPin  12   // SCLK out
+		const uint8_t radioCsPin[] = {1, 10, 2, 3};
 	#elif defined(SIGNALESP32_C3)
 		#define mosiPin 3   // MOSI out
 		#define misoPin 10   // MISO in
 		#define sckPin  2   // SCLK out
-		const uint8_t radioCsPin[] = {5, 7, 6, 4};
+		const uint8_t radioCsPin[] = {6, 7, 9, 8};
 	#else	
 		#define mosiPin 23   // MOSI out
 		#define misoPin 19   // MISO in

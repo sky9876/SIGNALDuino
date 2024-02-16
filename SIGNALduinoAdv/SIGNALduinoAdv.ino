@@ -82,14 +82,14 @@
 		#define PIN_RECEIVE_A        pinReceive[0]   // gdo2 cc1101 A
 		#define PIN_RECEIVE_B        pinReceive[1]   // gdo2 cc1101 B
 	#elif SIGNALESP32_S3
-		const uint8_t pinSend[] = {1, 2};				// pin 26 reserved on S2!!!
+		const uint8_t pinSend[] = {4, 5};				// pin 26 reserved on S2!!!
 		const uint8_t pinReceive[] = {15, 16, 17, 18};	// Test !!!
-		#define PIN_LED              38
+		#define PIN_LED              48
 		#define PIN_RECEIVE_A        pinReceive[0]   // gdo2 cc1101 A
 		#define PIN_RECEIVE_B        pinReceive[1]   // gdo2 cc1101 B
 	#elif SIGNALESP32_C3
-		const uint8_t pinSend[] = {8, 9};				// pin 26 reserved on S2!!!
-		const uint8_t pinReceive[] = {18, 19, 11, 13};	// Test !!!
+		const uint8_t pinSend[] = {12, 13};				// pin 26 reserved on S2!!!
+		const uint8_t pinReceive[] = {0, 1, 8, 9};	// Test !!!
 		#define PIN_LED              12
 		#define PIN_RECEIVE_A        pinReceive[0]   // gdo2 cc1101 A
 		#define PIN_RECEIVE_B        pinReceive[1]   // gdo2 cc1101 B
@@ -753,7 +753,7 @@ void setup() {
 
 	wdt_enable(WDTO_2S);  	// Enable Watchdog
 #endif
-#ifdef SIGNALESP32_S2
+#if defined(SIGNALESP32_S2) || defined(SIGNALESP32_C3) || defined(SIGNALESP32_S3)
 	Serial.println("*** initializing GPIO pins ***");
 	Serial.printf("* MISO: %d\n", misoPin);
 	Serial.printf("* MOSI: %d\n", mosiPin);
@@ -784,7 +784,7 @@ void setup() {
 #ifdef WATCHDOG
 	wdt_reset();
 #endif
-#ifdef SIGNALESP32_S2
+#if defined(SIGNALESP32_S2) || defined(SIGNALESP32_C3) || defined(SIGNALESP32_S3)
 	Serial.println("*** initializing CC1101 ***");
 	DBG_PRINTLN(F("*** from Macro DBG_PRINT: initializing CC1101 ***"));
 #endif
@@ -792,7 +792,7 @@ void setup() {
 #ifdef CMP_CC1101
 	if (hasCC1101) cc1101::setup();
 #endif
-#ifdef SIGNALESP32_S2
+#if defined(SIGNALESP32_S2) || defined(SIGNALESP32_C3) || defined(SIGNALESP32_S3)
   	Serial.println("*** initializing EEPROM ***");
 #endif
   	initEEPROM();
@@ -800,7 +800,7 @@ void setup() {
 #ifdef CMP_CC1101
   if (hasCC1101) {
 	MSG_PRINTLN(F("CCInit"));
-#ifdef SIGNALESP32_S2
+#if defined(SIGNALESP32_S2) || defined(SIGNALESP32_C3) || defined(SIGNALESP32_S3)
 	Serial.println("*** now before CCInit ***");
 #endif	
 	for (radionr = 0; radionr < 4; radionr++) {		// init radio
@@ -832,7 +832,7 @@ void setup() {
 	musterDecA.rssiConnectCallback(&rssiCallee);
 	musterDecB.rssiConnectCallback(&rssiCallee);
 #endif 
-#ifdef SIGNALESP32_S2
+#if defined(SIGNALESP32_S2) || defined(SIGNALESP32_C3) || defined(SIGNALESP32_S3)
 	Serial.println("*** initializing timerjobs ***");
 #endif
 	if (musterDecB.MdebEnabled) {
@@ -901,6 +901,7 @@ void setup() {
 		pinAsOutput(pinSend[radionr]);
 	}
   }
+  	Serial.println("*** end of setup() ***");
 	MSG_PRINTLN("");
 	getSelRadioBank();
 } //---  of setup
@@ -908,7 +909,7 @@ void setup() {
 
 //--------------------------------------------------------------------------------
 #ifdef ESP32
-void IRAM_ATTR cronjob(void *pArg) {
+	void cronjob(void *pArg) {
 	cli();
 #else // MapleMini
 void cronjob() {
@@ -994,6 +995,8 @@ void loop() {
 	static int16_t aktVal=0;
 	bool state;
 	uint8_t fifoCount;
+
+	// Serial.println("*** now in loop ***");
 	
 #ifdef SERIAL_USART2
 	serialEvent();
@@ -1208,8 +1211,8 @@ void getRxFifo(uint16_t Boffs) {
 //========================= Pulseauswertung ================================================
 
 #ifdef ESP32
-void IRAM_ATTR handleInterruptA() {
-  cli();
+	void IRAM_ATTR handleInterruptA() {
+	cli();
 #else // MapleMini
 void handleInterruptA() {
   noInterrupts();
@@ -1239,8 +1242,8 @@ void handleInterruptA() {
 }
 
 #ifdef ESP32
-void IRAM_ATTR handleInterruptB() {
-  cli();
+	void IRAM_ATTR handleInterruptB() {
+	cli();
 #else // MapleMini
 void handleInterruptB() {
   noInterrupts();
@@ -3060,12 +3063,12 @@ inline void WiFiEvent()
   if (Server.hasClient()) {
     if (!client || !client.connected()) {
       if (client) client.stop();
-      client = Server.available();
+      client = Server.accept();
       client.flush();
       Serial.print(F("New client: "));
       Serial.println(client.remoteIP());
     } else {
-      WiFiClient rejectClient = Server.available();
+      WiFiClient rejectClient = Server.accept();
       rejectClient.stop();
       Serial.print(F("Reject new Client="));
       Serial.println(rejectClient.remoteIP());

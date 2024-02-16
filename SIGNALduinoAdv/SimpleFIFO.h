@@ -53,10 +53,10 @@ public:
 
 private:
   uint8_t size;
-  volatile uint8_t numberOfElements = 0;
-  volatile uint8_t nextIn = 0;
-  volatile uint8_t nextOut = 0;
-  volatile int16_t rawFifo[FIFO_LENGTH];
+  uint8_t numberOfElements = 0;
+  uint8_t nextIn = 0;
+  uint8_t nextOut = 0;
+  int16_t rawFifo[FIFO_LENGTH];
 };
 
 SimpleFIFO::SimpleFIFO(uint8_t rawsize)
@@ -66,7 +66,7 @@ SimpleFIFO::SimpleFIFO(uint8_t rawsize)
 }
 
 #ifdef ESP32
-void IRAM_ATTR SimpleFIFO::enqueue(int16_t element) {
+void SimpleFIFO::enqueue(int16_t element) {
 #else
 void SimpleFIFO::enqueue(int16_t element) {
 #endif
