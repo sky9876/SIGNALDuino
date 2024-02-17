@@ -89,10 +89,12 @@ class SignalDetectorClass
 
 public:
 	SignalDetectorClass() : first(buffer), last(NULL), message(4) { 
-																		 buffer[0] = 0; reset(); mcMinBitLen = 17; 	
-																		 MsMoveCount = 0;
-																		 MuMoveCount = 0;
-																	   };
+		buffer[0] = 0;
+		reset();
+		mcMinBitLen = 17; 	
+		MsMoveCount = 0;
+		MuMoveCount = 0;
+	};
 
 	void reset();
 	bool decode(const int16_t* pulse);

@@ -12,7 +12,7 @@
 #include "tools.h"
 
 #if defined(MAPLE_Mini) || defined(ESP32)
-	#include <SPI.h>
+#include <SPI.h>
 #endif
 
 #define ccMaxBuf 64
@@ -24,19 +24,19 @@ extern uint8_t ccBuf[4][ccMaxBuf + 2];
 
 namespace cc1101 {
 	
-#ifdef MAPLE_SDUINO
+#if defined(MAPLE_SDUINO)
 	#define mosiPin 28   // MOSI out
 	#define misoPin 29   // MISO in
 	#define sckPin  30   // SCLK out
 	SPIClass SPI_2(mosiPin, misoPin, sckPin);
 	const uint8_t radioCsPin[] = {31, 12, 15, 3};
-#elif MAPLE_CUL
+#elif defined(MAPLE_CUL)
 	#define mosiPin 4   // MOSI out
 	#define misoPin 5   // MISO in
 	#define sckPin  6   // SCLK out
 	SPIClass SPI_2(mosiPin, misoPin, sckPin);
 	const uint8_t radioCsPin[] = {7, 12, 15, 3};
-#elif BLACK_BOARD
+#elif defined(BLACK_BOARD)
 	#define mosiPin 4   // MOSI out
 	#define misoPin 5   // MISO in
 	#define sckPin  6   // SCLK out
@@ -54,9 +54,9 @@ namespace cc1101 {
 		#define sckPin  12   // SCLK out
 		const uint8_t radioCsPin[] = {1, 10, 2, 3};
 	#elif defined(SIGNALESP32_C3)
-		#define mosiPin 3   // MOSI out
+		#define mosiPin 3    // MOSI out
 		#define misoPin 10   // MISO in
-		#define sckPin  2   // SCLK out
+		#define sckPin  2    // SCLK out
 		const uint8_t radioCsPin[] = {6, 7, 9, 8};
 	#else	
 		#define mosiPin 23   // MOSI out
@@ -348,119 +348,119 @@ namespace cc1101 {
 	}
 	
 
-  void readCCreg(const uint8_t reg) {   // read CC1101 register
-    uint8_t var;
-    uint8_t hex;
-    uint8_t n;
+	void readCCreg(const uint8_t reg) {   // read CC1101 register
+		uint8_t var;
+		uint8_t hex;
+		uint8_t n;
 
-       if (cmdstring.charAt(3) == 'n' && isHexadecimalDigit(cmdstring.charAt(4))) {   // C<reg>n<anz>  gibt anz+2 fortlaufende register zurueck
-           hex = (uint8_t)cmdstring.charAt(4);
-           n = tools::hex2int(hex);
-           if (reg < 0x2F) {
-              MSG_PRINT("C");
-              printHex2(reg);
-              MSG_PRINT("n");
-              n += 2;
-              printHex2(n);
-              MSG_PRINT("=");
-              for (uint8_t i = 0; i < n; i++) {
-                 var = readReg(reg + i, CC1101_CONFIG);
-                 printHex2(var);
-              }
-              MSG_PRINTLN("");
-           }
-       }
-       else {
-       if (reg < 0x3E) {
-          if (reg < 0x2F) {
-             var = readReg(reg, CC1101_CONFIG);
-          }
-          else {
-             var = readReg(reg, CC1101_STATUS);
-          }
-          MSG_PRINT("C");
-          printHex2(reg);
-          MSG_PRINT(" = ");
-          printHex2(var);
-          MSG_PRINTLN("");
-       }
-       else if (reg == 0x3E) {                   // patable
-          MSG_PRINT(F("C3E = "));
-          readPatable();
-       }
-       else if (reg == 0x99) {                   // alle register
-         for (uint8_t i = 0; i < 0x2f; i++) {
-           if (i == 0 || i == 0x10 || i == 0x20) {
-             if (i > 0) {
-               MSG_PRINT(" ");
-             }
-             MSG_PRINT(F("ccreg "));
-             printHex2(i);
-             MSG_PRINT(F(": "));
-           }
-           var = readReg(i, CC1101_CONFIG);
-           printHex2(var);
-           MSG_PRINT(" ");
-         }
-         MSG_PRINTLN("");
-       }
-       else {
-         MSG_PRINTLN(F("error"));
-       }
-     }
-  }
-
-  void commandStrobes(void) {
-    uint8_t hex;
-    uint8_t reg;
-    uint8_t val;
-  
-    if (isHexadecimalDigit(cmdstring.charAt(3))) {
-        hex = (uint8_t)cmdstring.charAt(3);
-        reg = tools::hex2int(hex) + 0x30;
-        if (reg < 0x3e) {
-             cc1101_Select();
-             if (waitTo_Miso() == 0) {                 // wait with timeout until MISO goes low
-                 MSG_PRINTLN(F("timeout!"));
-                 return;
-             }
-             val = sendSPI(reg);                       // send strobe command
-             cc1101_Deselect();
-             MSG_PRINT(F("cmdStrobeReg "));
-             printHex2(reg);
-             MSG_PRINT(F(" chipStatus "));
-             val = val >> 4;
-             MSG_PRINT(val, HEX);
-             if (reg != CC1101_SXOFF) {
-                 delay(2);
-                 val = cmdStrobe(CC1101_SNOP);        //  No operation, used to get access to the chip status byte.
-                 MSG_PRINT(F(" delay2 "));
-                 val = val >> 4;
-                 MSG_PRINTLN(val, HEX);;
-             }
-             else {
-                 MSG_PRINTLN("");
-             }
-             return;
-         }
-     }
-     MSG_PRINTLN(F("error"));
-  }
-
-
-void writeCCpatable(uint8_t var) {           // write 8 byte to patable (kein pa ramping)
-	for (uint8_t i = 0; i < 8; i++) {
-		if (i == 1) {
-			tools::EEbankWrite(EE_CC1101_PA + i, var);
-		} else {
-			tools::EEbankWrite(EE_CC1101_PA + i, 0);
+		if (cmdstring.charAt(3) == 'n' && isHexadecimalDigit(cmdstring.charAt(4))) {   // C<reg>n<anz>  gibt anz+2 fortlaufende register zurueck
+			hex = (uint8_t)cmdstring.charAt(4);
+			n = tools::hex2int(hex);
+			if (reg < 0x2F) {
+				MSG_PRINT("C");
+				printHex2(reg);
+				MSG_PRINT("n");
+				n += 2;
+				printHex2(n);
+				MSG_PRINT("=");
+				for (uint8_t i = 0; i < n; i++) {
+					var = readReg(reg + i, CC1101_CONFIG);
+					printHex2(var);
+				}
+				MSG_PRINTLN("");
+			}
+		}
+		else {
+		if (reg < 0x3E) {
+			if (reg < 0x2F) {
+				var = readReg(reg, CC1101_CONFIG);
+			}
+			else {
+				var = readReg(reg, CC1101_STATUS);
+			}
+			MSG_PRINT("C");
+			printHex2(reg);
+			MSG_PRINT(" = ");
+			printHex2(var);
+			MSG_PRINTLN("");
+		}
+		else if (reg == 0x3E) {                   // patable
+			MSG_PRINT(F("C3E = "));
+			readPatable();
+		}
+		else if (reg == 0x99) {                   // alle register
+			for (uint8_t i = 0; i < 0x2f; i++) {
+			if (i == 0 || i == 0x10 || i == 0x20) {
+				if (i > 0) {
+				MSG_PRINT(" ");
+				}
+				MSG_PRINT(F("ccreg "));
+				printHex2(i);
+				MSG_PRINT(F(": "));
+			}
+			var = readReg(i, CC1101_CONFIG);
+			printHex2(var);
+			MSG_PRINT(" ");
+			}
+			MSG_PRINTLN("");
+		}
+		else {
+			MSG_PRINTLN(F("error"));
+		}
 		}
 	}
-	#if defined(MAPLE_Mini) || defined(ESP32)
-	tools::EEstore();
-	#endif
-	writePatable();
-}
+
+	void commandStrobes(void) {
+		uint8_t hex;
+		uint8_t reg;
+		uint8_t val;
+
+		if (isHexadecimalDigit(cmdstring.charAt(3))) {
+			hex = (uint8_t)cmdstring.charAt(3);
+			reg = tools::hex2int(hex) + 0x30;
+			if (reg < 0x3e) {
+				cc1101_Select();
+				if (waitTo_Miso() == 0) {                 // wait with timeout until MISO goes low
+					MSG_PRINTLN(F("timeout!"));
+					return;
+				}
+				val = sendSPI(reg);                       // send strobe command
+				cc1101_Deselect();
+				MSG_PRINT(F("cmdStrobeReg "));
+				printHex2(reg);
+				MSG_PRINT(F(" chipStatus "));
+				val = val >> 4;
+				MSG_PRINT(val, HEX);
+				if (reg != CC1101_SXOFF) {
+					delay(2);
+					val = cmdStrobe(CC1101_SNOP);        //  No operation, used to get access to the chip status byte.
+					MSG_PRINT(F(" delay2 "));
+					val = val >> 4;
+					MSG_PRINTLN(val, HEX);;
+				}
+				else {
+					MSG_PRINTLN("");
+				}
+				return;
+			}
+		}
+		MSG_PRINTLN(F("error"));
+	}
+
+
+	void writeCCpatable(uint8_t var) {           // write 8 byte to patable (kein pa ramping)
+		for (uint8_t i = 0; i < 8; i++) {
+			if (i == 1) {
+				tools::EEbankWrite(EE_CC1101_PA + i, var);
+			} else {
+				tools::EEbankWrite(EE_CC1101_PA + i, 0);
+			}
+		}
+		#if defined(MAPLE_Mini) || defined(ESP32)
+		tools::EEstore();
+		#endif
+		writePatable();
+	}
 
 
 	void ccFactoryReset(bool flag) {
@@ -666,7 +666,7 @@ void writeCCpatable(uint8_t var) {           // write 8 byte to patable (kein pa
 		cmdStrobe(CC1101_SFRX);
 	}
 	
-	 uint8_t flushrx() {		// Flush the RX FIFO buffer
+	uint8_t flushrx() {		// Flush the RX FIFO buffer
 		if (cmdStrobeTo(CC1101_SIDLE) == false) {
 			return false;
 		}

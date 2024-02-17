@@ -1201,11 +1201,6 @@ void SignalDetectorClass::processMessage(const uint8_t p_valid)
 #endif
 }
 
-
-
-
-
-
 void SignalDetectorClass::reset()
 {
 	messageLen = 0;
@@ -1216,7 +1211,7 @@ void SignalDetectorClass::reset()
 	state = searching;
 	clock = sync = -1;
 	for (uint8_t i = 0; i<cMaxNumPattern; ++i)
-	  histo[i] = pattern[i] = 0;
+		histo[i] = pattern[i] = 0;
 	success = false;
 	tol = 150; //
 	tolFact = 0.25;
@@ -1240,7 +1235,6 @@ const status SignalDetectorClass::getState()
 
 const bool SignalDetectorClass::inTol(const int16_t val, const int16_t set, const int16_t tolerance)
 {
-	
 	// tolerance = tolerance == 0 ? tol : tolerance;
 	//return (abs(val - set) <= tolerance == 0 ? tol: tolerance);
 	return (abs(val - set) <= tolerance);

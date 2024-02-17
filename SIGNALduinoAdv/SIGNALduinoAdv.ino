@@ -88,11 +88,11 @@
 		#define PIN_RECEIVE_A        pinReceive[0]   // gdo2 cc1101 A
 		#define PIN_RECEIVE_B        pinReceive[1]   // gdo2 cc1101 B
 	#elif SIGNALESP32_C3
-		const uint8_t pinSend[] = {12, 13};				// pin 26 reserved on S2!!!
-		const uint8_t pinReceive[] = {0, 1, 8, 9};	// Test !!!
-		#define PIN_LED              12
-		#define PIN_RECEIVE_A        pinReceive[0]   // gdo2 cc1101 A
-		#define PIN_RECEIVE_B        pinReceive[1]   // gdo2 cc1101 B
+		const uint8_t pinSend[] = {12, 13};				// 
+		const uint8_t pinReceive[] = {5, 4, 8, 9};		// Test !!!
+		#define PIN_LED              12					// 2. LED: 13
+		#define PIN_RECEIVE_A        pinReceive[0]		// gdo2 cc1101 A
+		#define PIN_RECEIVE_B        pinReceive[1]	// gdo2 cc1101 B
 	#elif EVIL_CROW_RF
 		const uint8_t pinSend[] = {2, 26};
 		const uint8_t pinReceive[] = {4, 25, 14, 21};
